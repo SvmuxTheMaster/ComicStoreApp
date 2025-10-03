@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.ui.theme
+package com.example.comicstoreapp.theme
 
 import androidx.compose.ui.graphics.Color
 
