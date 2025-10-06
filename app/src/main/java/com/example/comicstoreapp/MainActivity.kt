@@ -8,8 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.example.comicstoreapp.screen.RegisterScreen
-import com.example.comicstoreapp.screen.LoginScreen
+import com.example.comicstoreapp.screen.user.*
+import com.example.comicstoreapp.screen.auth.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +27,12 @@ class MainActivity : ComponentActivity() {
                 {
                     composable("login") { LoginScreen(navController) }
                     composable("register") { RegisterScreen(navController) }
+
+                    composable("home") { HomeScreen(navController) }
+                    composable("dc_comics") { DCScreen(navController) }
+                    composable("marvel_comics") { MarvelScreen(navController) }
+                    composable("manga") { MangaScreen(navController) }
+
                 }
             }
         }

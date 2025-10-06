@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.screen
+package com.example.comicstoreapp.screen.auth
 
 
 import android.widget.Toast
@@ -14,15 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-// import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.comicstoreapp.R
-import androidx.navigation.NavController
-
+import androidx.navigation.NavHostController
 
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavHostController) {
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
