@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.screen.user
+package com.example.comicstoreapp.ui.screen.user
 
 
 import androidx.compose.foundation.layout.*

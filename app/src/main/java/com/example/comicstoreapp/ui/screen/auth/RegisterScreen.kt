@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.screen.auth
+package com.example.comicstoreapp.ui.screen.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -22,10 +22,11 @@ import com.example.comicstoreapp.R
 fun RegisterScreen(navController: NavHostController) {
     val context = LocalContext.current
 
-    var name by remember { mutableStateOf("") }
+    var nombre by remember { mutableStateOf("") }
     var rut by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
+    var contrasenaConfirm by remember { mutableStateOf("") }
 
 
     Box(
@@ -51,8 +52,8 @@ fun RegisterScreen(navController: NavHostController) {
 
             // Nombre
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
+                value = nombre,
+                onValueChange = { nombre = it },
                 label = { Text("Nombre") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -71,8 +72,8 @@ fun RegisterScreen(navController: NavHostController) {
 
             // Email
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = correo,
+                onValueChange = { correo = it },
                 label = { Text("Correo Electrónico") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -82,8 +83,8 @@ fun RegisterScreen(navController: NavHostController) {
 
             // Contraseña
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = contrasena,
+                onValueChange = { contrasena = it },
                 label = { Text("Contraseña") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -91,10 +92,21 @@ fun RegisterScreen(navController: NavHostController) {
 
             )
 
+            //Confirmar Contraseña
+            OutlinedTextField(
+                value = contrasenaConfirm,
+                onValueChange = { contrasenaConfirm = it },
+                label = { Text("Confirmar contraseña") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation(),
+
+                )
+
             // Botón de registro
             Button(
                 onClick = {
-                    Toast.makeText(context, "Registro exitoso: $name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Registro exitoso: $nombre", Toast.LENGTH_SHORT).show()
                     navController.navigate("login"){ popUpTo("register"){ inclusive = true }
                     }
                 },
