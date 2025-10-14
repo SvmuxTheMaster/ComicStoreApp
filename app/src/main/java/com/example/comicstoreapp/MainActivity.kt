@@ -9,7 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.example.comicstoreapp.ui.screen.auth.LoginScreenVm
-import com.example.comicstoreapp.ui.screen.auth.RegisterScreen
+import com.example.comicstoreapp.ui.screen.auth.RegisterScreenVm
 import com.example.comicstoreapp.ui.screen.user.DCScreen
 import com.example.comicstoreapp.ui.screen.user.HomeScreen
 import com.example.comicstoreapp.ui.screen.user.MangaScreen
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
                 )
                 {
                     composable("login") { LoginScreenVm(navController) }
-                    composable("register") { RegisterScreen(navController) }
+                    composable("register") { RegisterScreenVm(navController) }
 
                     composable("home") { HomeScreen(navController) }
                     composable("dc_comics") { DCScreen(navController) }

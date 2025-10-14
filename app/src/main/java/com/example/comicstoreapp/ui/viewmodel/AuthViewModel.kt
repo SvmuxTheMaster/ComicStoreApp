@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 data class LoginUiState(
     val correo: String = "",
     val contrasena: String = "",
+    val nombre: String? = null,
 
 
     val correoError: String? = null,
@@ -64,7 +65,7 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
         // Lista mutable de usuarios para la demo (se pierde al cerrar la app)
         private val USERS = mutableListOf(
             // Usuario por defecto para probar login:
-            DemoUser(nombre = "Demo", correo = "a@a.cl", rut = "12345678", contrasena = "Demo123!")
+            DemoUser(nombre = "Demo", correo = "a@a.cl", rut = "12345678", contrasena = "Demo123")
         )
     }
 
@@ -110,6 +111,7 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
 
             _login.update {                                 // Actualizamos con el resultado
                 it.copy(
+                    nombre = if (ok) user.nombre else null, // Si coincide, guardamos nombre
                     isSubmitting = false,                   // Fin carga
                     success = ok,                           // true si credenciales correctas
                     errorMsg = if (!ok) "Credenciales inválidas" else null // Mensaje si falla
@@ -137,10 +139,9 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
         recomputeRegisterCanSubmit()
     }
 
-    fun onPhoneChange(value: String) {                      // Handler del teléfono
-        val digitsOnly = value.filter { it.isDigit() }      // Dejamos solo dígitos
+    fun onRutChange(value: String) {                      // Handler del teléfono
         _register.update {                                  // Guardamos + validamos
-            it.copy(rut = digitsOnly, rutError = validarRut(digitsOnly))
+            it.copy(rut = value, rutError = validarRut(value))
         }
         recomputeRegisterCanSubmit()
     }

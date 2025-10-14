@@ -32,10 +32,14 @@ fun LoginScreenVm(navController: NavHostController){
 
     val vm: AuthViewModel = viewModel()
     val state by vm.login.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    if (state.success){
-        vm.clearLoginResult()
-        navController.navigate("home")
+    LaunchedEffect(state.success) {
+        if (state.success){
+            Toast.makeText(context, "Bienvenido ${state.nombre}", Toast.LENGTH_SHORT).show()
+            vm.clearLoginResult()
+            navController.navigate("home")
+        }
     }
 
     LoginScreen(
@@ -58,7 +62,7 @@ fun LoginScreenVm(navController: NavHostController){
 
 
 @Composable
-public fun LoginScreen(
+fun LoginScreen(
     correo: String,
     contrasena: String,
 
@@ -141,14 +145,15 @@ public fun LoginScreen(
                 if (isSubmitting){
                     CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Cargando...")
                 }else{
                     Text("Iniciar Sesion")
                 }
             }
 
             if (errorMsg != null) {
-                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                LaunchedEffect(errorMsg) {
+                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                }
             }
 
 

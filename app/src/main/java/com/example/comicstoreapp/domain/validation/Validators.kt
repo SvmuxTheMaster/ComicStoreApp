@@ -15,13 +15,18 @@ fun validarNombre(nombre: String): String? {
 
 
 fun validarRut(rut: String): String? {
-    val regex = Regex("^[0-9]{7,8}-[0-9Kk]$")
-    val format = rut.replace(".","")
-
     if (rut.isBlank()) return "El RUT es obligatorio"
-    if (!format.matches(regex)) return "El RUT ingresado es inválido"
+    if (rut.length < 7 || rut.length > 12) return "El RUT ingresado es invalido"
+
+    val clean = rut.replace(".", "").replace(" ", "")
+
+    val regex = Regex("^[0-9]{7,8}-[0-9Kk]$")
+
+    if (!clean.matches(regex)) return "El RUT ingresado es inválido"
+
     return null
 }
+
 
 
 fun validarCorreo(correo: String): String?{
