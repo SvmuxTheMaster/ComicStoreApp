@@ -19,6 +19,7 @@ data class LoginUiState(
     val correo: String = "",
     val contrasena: String = "",
     val nombre: String? = null,
+    val rol: String? = null,
 
 
     val correoError: String? = null,
@@ -55,7 +56,7 @@ private data class DemoUser(
     val rut: String,
     val correo: String,
     val contrasena: String,
-
+    val rol: String
 )
 
 class AuthViewModel : ViewModel() {                         // ViewModel que maneja Login/Registro
@@ -65,7 +66,9 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
         // Lista mutable de usuarios para la demo (se pierde al cerrar la app)
         private val USERS = mutableListOf(
             // Usuario por defecto para probar login:
-            DemoUser(nombre = "Demo", correo = "a@a.cl", rut = "12345678", contrasena = "Demo123")
+            DemoUser(nombre = "Demo", correo = "a@a.cl", rut = "20.237.697-5", contrasena = "Demo123", rol = "usuario"),
+            DemoUser(nombre = "admin", correo = "admin@admin.cl", rut = "11.111.111-1", contrasena = "Admin123", rol = "admin"),
+            DemoUser(nombre = "vendedor", correo = "vendedor@vendedor.cl", rut = "22.222.222-2", contrasena = "Vendedor123", rol = "vendedor")
         )
     }
 
@@ -114,7 +117,9 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
                     nombre = if (ok) user.nombre else null, // Si coincide, guardamos nombre
                     isSubmitting = false,                   // Fin carga
                     success = ok,                           // true si credenciales correctas
-                    errorMsg = if (!ok) "Credenciales inválidas" else null // Mensaje si falla
+                    errorMsg = if (!ok) "Credenciales inválidas" else null, // Mensaje si falla
+                    rol = if (ok) user.rol else null
+
                 )
             }
         }
@@ -188,7 +193,8 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
                     nombre = s.nombre.trim(),
                     correo = s.correo.trim(),
                     rut = s.rut.trim(),
-                    contrasena = s.contrasena                            // En demo lo guardamos en texto (para clase)
+                    contrasena = s.contrasena,                           // En demo lo guardamos en texto (para clase)
+                    rol = "usuario"
                 )
             )
 

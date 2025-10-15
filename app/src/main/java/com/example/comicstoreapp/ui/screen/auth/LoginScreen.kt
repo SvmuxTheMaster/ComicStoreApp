@@ -37,8 +37,14 @@ fun LoginScreenVm(navController: NavHostController){
     LaunchedEffect(state.success) {
         if (state.success){
             Toast.makeText(context, "Bienvenido ${state.nombre}", Toast.LENGTH_SHORT).show()
+
+            when(state.rol){
+                "admin" -> navController.navigate("homeAdmin")
+                "vendedor" -> navController.navigate("homeSeller")
+                "usuario" -> navController.navigate("home")
+            }
+
             vm.clearLoginResult()
-            navController.navigate("home")
         }
     }
 
