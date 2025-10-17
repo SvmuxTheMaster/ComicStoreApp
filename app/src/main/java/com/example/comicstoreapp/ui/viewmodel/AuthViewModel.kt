@@ -1,18 +1,11 @@
 package com.example.comicstoreapp.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.comicstoreapp.domain.validation.confirmarContrasena
-import com.example.comicstoreapp.domain.validation.validarContrasena
-import com.example.comicstoreapp.domain.validation.validarCorreo
-import com.example.comicstoreapp.domain.validation.validarNombre
-import com.example.comicstoreapp.domain.validation.validarRut
+import androidx.lifecycle.*
+import com.example.comicstoreapp.data.repository.UserRepository
+import com.example.comicstoreapp.domain.validation.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
 
 
 data class LoginUiState(
@@ -20,12 +13,8 @@ data class LoginUiState(
     val contrasena: String = "",
     val nombre: String? = null,
     val rol: String? = null,
-
-
     val correoError: String? = null,
     val contrasenaError: String? = null,
-
-
     val isSubmitting: Boolean = false,
     val canSubmit: Boolean = false,
     val success: Boolean = false,
@@ -38,41 +27,19 @@ data class RegisterUiState(
     val correo: String = "",
     val contrasena: String = "",
     val contrasenaConfirm: String = "",
-
     val nombreError: String? = null,
     val rutError: String? = null,
     val correoError: String? = null,
     val contrasenaError: String? = null,
     val contrasenaConfirmError: String? = null,
-
     val isSubmitting: Boolean = false,
     val canSubmit: Boolean = false,
     val success: Boolean = false,
     val errorMsg: String? = null
 )
 
-private data class DemoUser(
-    val nombre: String,
-    val rut: String,
-    val correo: String,
-    val contrasena: String,
-    val rol: String
-)
 
-class AuthViewModel : ViewModel() {                         // ViewModel que maneja Login/Registro
-
-    // Colección **estática** en memoria compartida entre instancias del VM (sin storage persistente)
-    companion object {
-        // Lista mutable de usuarios para la demo (se pierde al cerrar la app)
-        private val USERS = mutableListOf(
-            // Usuario por defecto para probar login:
-            DemoUser(nombre = "Demo", correo = "a@a.cl", rut = "20.237.697-5", contrasena = "Demo123", rol = "usuario"),
-            DemoUser(nombre = "admin", correo = "admin@admin.cl", rut = "11.111.111-1", contrasena = "Admin123", rol = "admin"),
-            DemoUser(nombre = "vendedor", correo = "vendedor@vendedor.cl", rut = "22.222.222-2", contrasena = "Vendedor123", rol = "vendedor")
-        )
-    }
-
-    // Flujos de estado para observar desde la UI
+class AuthViewModel ( private val repository: UserRepository): ViewModel() {
     private val _login = MutableStateFlow(LoginUiState())   // Estado interno (Login)
     val login: StateFlow<LoginUiState> = _login             // Exposición inmutable
 
@@ -99,28 +66,33 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
         _login.update { it.copy(canSubmit = can) }          // Actualizamos el flag
     }
 
-    fun submitLogin() {                                     // Acción de login (simulación async)
-        val s = _login.value                                // Snapshot del estado
-        if (!s.canSubmit || s.isSubmitting) return          // Si no se puede o ya está cargando, salimos
-        viewModelScope.launch {                             // Lanzamos corrutina
-            _login.update { it.copy(isSubmitting = true, errorMsg = null, success = false) } // Seteamos loading
-            delay(500)                                      // Simulamos tiempo de verificación
+    fun submitLogin() {
+        val s = _login.value
+        if (!s.canSubmit || s.isSubmitting) return
+
+
+        viewModelScope.launch {
+            _login.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
+            delay(500)
 
             // Buscamos en la **colección en memoria** un usuario con ese email
-            val user = USERS.firstOrNull { it.correo.equals(s.correo, ignoreCase = true) }
+            val result = repository.login(s.correo.trim(), s.contrasena.trim())
 
-            // ¿Coincide email + contraseña?
-            val ok = user != null && user.contrasena == s.contrasena
 
-            _login.update {                                 // Actualizamos con el resultado
-                it.copy(
-                    nombre = if (ok) user.nombre else null, // Si coincide, guardamos nombre
-                    isSubmitting = false,                   // Fin carga
-                    success = ok,                           // true si credenciales correctas
-                    errorMsg = if (!ok) "Credenciales inválidas" else null, // Mensaje si falla
-                    rol = if (ok) user.rol else null
-
-                )
+            // Interpreta el resultado y actualiza estado
+            _login.update {
+                if (result.isSuccess) {
+                    it.copy(
+                        isSubmitting = false,
+                        success = true,
+                        errorMsg = null,
+                        nombre = result.getOrNull()?.nombre,
+                        rol = result.getOrNull()?.rol
+                    ) // OK: éxito
+                } else {
+                    it.copy(isSubmitting = false, success = false,
+                        errorMsg = result.exceptionOrNull()?.message ?: "Error de autenticación")
+                }
             }
         }
     }
@@ -177,29 +149,23 @@ class AuthViewModel : ViewModel() {                         // ViewModel que man
             _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) } // Loading
             delay(700)                                      // Simulamos IO
 
-            // ¿Existe ya un usuario con el mismo email en la **colección**?
-            val duplicated = USERS.any { it.correo.equals(s.correo, ignoreCase = true) }
 
-            if (duplicated) {                               // Si ya existe, devolvemos error
-                _register.update {
-                    it.copy(isSubmitting = false, success = false, errorMsg = "El usuario ya existe")
-                }
-                return@launch                                // Salimos
-            }
-
-            // Insertamos el nuevo usuario en la **colección** (solo demo; no persistimos)
-            USERS.add(
-                DemoUser(
-                    nombre = s.nombre.trim(),
-                    correo = s.correo.trim(),
-                    rut = s.rut.trim(),
-                    contrasena = s.contrasena,                           // En demo lo guardamos en texto (para clase)
-                    rol = "usuario"
-                )
+            val result = repository.register(
+                s.nombre.trim(),
+                s.correo.trim(),
+                s.rut.trim(),
+                s.contrasena.trim(),
+                "usuario"
             )
 
-            _register.update {                               // Éxito
-                it.copy(isSubmitting = false, success = true, errorMsg = null)
+            // Interpreta resultado y actualiza estado
+            _register.update {
+                if (result.isSuccess) {
+                    it.copy(isSubmitting = false, success = true, errorMsg = null)  // OK
+                } else {
+                    it.copy(isSubmitting = false, success = false,
+                        errorMsg = result.exceptionOrNull()?.message ?: "No se pudo registrar")
+                }
             }
         }
     }

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.comicstoreapp.R
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
@@ -28,9 +27,10 @@ import androidx.compose.material.icons.filled.VisibilityOff
 
 
 @Composable
-fun LoginScreenVm(navController: NavHostController){
+fun LoginScreenVm(
+    navController: NavHostController,
+    vm: AuthViewModel){
 
-    val vm: AuthViewModel = viewModel()
     val state by vm.login.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
