@@ -1,29 +1,26 @@
 package com.example.comicstoreapp.ui.screen.admin
 
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
 
 
 @Composable
-fun HomeAdminScreen(navController: NavHostController, vm: AuthViewModel) {
+fun GestionInventarioScreen(navController: NavHostController, vm: AuthViewModel){
+
     AppScaffold(
         rol = "admin",
         navController = navController,
         onLogout = {
             vm.onLogOut()
-            navController.navigate("login"){
-                popUpTo("0") { inclusive = true }
-            }
+            navController.navigate("login"){ popUpTo("0") { inclusive = true } }
         }
-    ) {
+    ){
+
+        Text("Bienvenido administrador a la gestion de inventario ")
 
     }
-}
 
+}

@@ -173,4 +173,32 @@ class AuthViewModel ( private val repository: UserRepository): ViewModel() {
     fun clearRegisterResult() {                             // Limpia banderas tras navegar
         _register.update { it.copy(success = false, errorMsg = null) }
     }
+
+    fun onLogOut(){
+        _login.update {
+            it.copy(
+                correo = "",
+                contrasena = "",
+                nombre = null,
+                rol = null,
+                success = false,
+                errorMsg = null
+            )
+        }
+
+        _register.update {
+            it.copy(
+                nombre = "",
+                rut = "",
+                correo = "",
+                contrasena = "",
+                success = false,
+                errorMsg = null
+            )
+        }
+    }
+
+
+
+
 }

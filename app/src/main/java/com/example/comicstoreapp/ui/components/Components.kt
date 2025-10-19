@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.components
+package com.example.comicstoreapp.ui.components
 
 
 import android.widget.Toast

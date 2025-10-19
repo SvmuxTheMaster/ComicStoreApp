@@ -1,20 +1,14 @@
-package com.example.comicstoreapp.ui.screen.admin
+package com.example.comicstoreapp.ui.screen.seller
 
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
 
-
 @Composable
-fun HomeAdminScreen(navController: NavHostController, vm: AuthViewModel) {
+fun PedidosScreen(navController: NavHostController, vm: AuthViewModel) {
     AppScaffold(
-        rol = "admin",
+        rol = "vendedor",
         navController = navController,
         onLogout = {
             vm.onLogOut()
@@ -26,4 +20,3 @@ fun HomeAdminScreen(navController: NavHostController, vm: AuthViewModel) {
 
     }
 }
-

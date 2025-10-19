@@ -13,13 +13,16 @@ import androidx.navigation.compose.composable
 import com.example.comicstoreapp.data.local.database.AppDatabase
 import com.example.comicstoreapp.data.repository.UserRepository
 import com.example.comicstoreapp.screen.seller.SellerScreen
-import com.example.comicstoreapp.ui.screen.admin.AdminScreen
+import com.example.comicstoreapp.ui.screen.admin.GestionInventarioScreen
+import com.example.comicstoreapp.ui.screen.admin.GestionReportes
+import com.example.comicstoreapp.ui.screen.admin.GestionUserScreen
+import com.example.comicstoreapp.ui.screen.admin.HomeAdminScreen
 import com.example.comicstoreapp.ui.screen.auth.LoginScreenVm
 import com.example.comicstoreapp.ui.screen.auth.RegisterScreenVm
-import com.example.comicstoreapp.ui.screen.user.DCScreen
+import com.example.comicstoreapp.ui.screen.seller.GestionarStockScreen
+import com.example.comicstoreapp.ui.screen.seller.PedidosScreen
+import com.example.comicstoreapp.ui.screen.user.ComicScreen
 import com.example.comicstoreapp.ui.screen.user.HomeScreen
-import com.example.comicstoreapp.ui.screen.user.MangaScreen
-import com.example.comicstoreapp.ui.screen.user.MarvelScreen
 import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
 import com.example.comicstoreapp.ui.viewmodel.AuthViewModelFactory
 
@@ -47,13 +50,24 @@ fun AppRoot() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "login") {
+
+        //AuthScreen
         composable("login") { LoginScreenVm(navController, authViewModel) }
         composable("register") { RegisterScreenVm(navController, authViewModel) }
-        composable("home") { HomeScreen(navController) }
-        composable("dc_comics") { DCScreen(navController) }
-        composable("marvel_comics") { MarvelScreen(navController) }
-        composable("manga") { MangaScreen(navController) }
-        composable("homeAdmin") { AdminScreen(navController) }
-        composable("homeSeller") { SellerScreen(navController) }
+
+        //UserScreen
+        composable("home") { HomeScreen(navController, authViewModel) }
+        composable("comics") { ComicScreen(navController, authViewModel) }
+
+        //AdminScreen
+        composable("homeAdmin") { HomeAdminScreen(navController, authViewModel) }
+        composable("gestionInventario") { GestionInventarioScreen(navController, authViewModel) }
+        composable("gestionUsuarios") { GestionUserScreen(navController, authViewModel) }
+        composable("verReportes") { GestionReportes(navController, authViewModel) }
+
+        //SellerScreen
+        composable("homeSeller") { SellerScreen(navController, authViewModel) }
+        composable("gestionarStock") { GestionarStockScreen(navController, authViewModel) }
+        composable("gestionarPedidos") { PedidosScreen(navController, authViewModel) }
     }
 }

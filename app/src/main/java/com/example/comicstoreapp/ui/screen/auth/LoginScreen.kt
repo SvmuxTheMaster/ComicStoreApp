@@ -27,9 +27,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 
 
 @Composable
-fun LoginScreenVm(
-    navController: NavHostController,
-    vm: AuthViewModel){
+fun LoginScreenVm(navController: NavHostController, vm: AuthViewModel){
 
     val state by vm.login.collectAsStateWithLifecycle()
     val context = LocalContext.current

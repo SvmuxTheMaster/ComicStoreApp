@@ -26,9 +26,7 @@ import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
 
 
 @Composable
-fun RegisterScreenVm(
-    navController: NavHostController,
-    vm: AuthViewModel
+fun RegisterScreenVm(navController: NavHostController, vm: AuthViewModel
 ){
 
     val state by vm.register.collectAsStateWithLifecycle()

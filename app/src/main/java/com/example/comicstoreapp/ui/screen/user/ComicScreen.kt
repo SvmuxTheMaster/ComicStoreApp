@@ -8,10 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.R
-import com.example.comicstoreapp.components.ComicCard
+import com.example.comicstoreapp.ui.components.ComicCard
+import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
 
 @Composable
-fun DCScreen(navController: NavHostController) {
+fun ComicScreen(navController: NavHostController, vm: AuthViewModel,) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
