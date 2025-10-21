@@ -3,7 +3,7 @@ package com.example.comicstoreapp.ui.screen.seller
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.components.AppScaffold
-import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 
 @Composable
 fun GestionarStockScreen(navController: NavHostController, vm: AuthViewModel) {

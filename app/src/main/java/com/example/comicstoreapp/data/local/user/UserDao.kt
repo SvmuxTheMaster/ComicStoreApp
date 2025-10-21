@@ -1,24 +1,27 @@
 package com.example.comicstoreapp.data.local.user
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 //@Dao indica que define operaciones para la tabla users.
 @Dao
 interface UserDao {
 
-    // Inserta un usuario. ABORT si hay conflicto de PK (no de email; ese lo controlamos a mano).
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(user: UserEntity): Long
+    @Query("SELECT * FROM usuarios ORDER BY nombre ASC")
+    suspend fun getAll(): List<UserEntity>
 
-    // Devuelve un usuario por email (o null si no existe).
     @Query("SELECT * FROM usuarios WHERE correo = :correo LIMIT 1")
     suspend fun getByCorreo(correo: String): UserEntity?
 
-    // Cuenta total de usuarios (para saber si hay datos y/o para seeds).
-    @Query("SELECT COUNT(*) FROM usuarios")
-    suspend fun count(): Int
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(user: UserEntity): Long
 
-    // Lista completa (útil para debug/administración).
-    @Query("SELECT * FROM usuarios ORDER BY idUsuario ASC")
-    suspend fun getAll(): List<UserEntity>
+    @Query("UPDATE usuarios SET rol = :rol WHERE idUsuario = :id")
+    suspend fun updateRole(id: Long, rol: String)
+
+    @Query("DELETE FROM usuarios WHERE idUsuario = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM usuarios ORDER BY nombre ASC")
+    fun getAllFlow(): Flow<List<UserEntity>>
 }

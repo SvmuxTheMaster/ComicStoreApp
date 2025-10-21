@@ -13,5 +13,4 @@ data class InventarioEntity(
     val categoria: String,
     val precio: Int,
     val stock: Int
-
 )

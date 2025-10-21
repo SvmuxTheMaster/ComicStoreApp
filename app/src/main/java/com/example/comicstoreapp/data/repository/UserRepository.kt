@@ -2,6 +2,7 @@ package com.example.comicstoreapp.data.repository
 
 import com.example.comicstoreapp.data.local.user.UserDao
 import com.example.comicstoreapp.data.local.user.UserEntity
+import kotlinx.coroutines.flow.Flow
 
 
 // Repositorio: orquesta reglas de negocio para login/registro sobre el DAO.
@@ -35,5 +36,31 @@ class UserRepository(
             )
         )
         return Result.success(id)                                    // Devuelve ID generado
+    }
+
+
+    //ADMIN REPOSITORY
+
+    fun getAllUsersFlow(): Flow<List<UserEntity>> {
+        return userDao.getAllFlow()
+    }
+
+
+    suspend fun updateUserRole(id: Long, rol: String): Result<Unit> {
+        return try {
+            userDao.updateRole(id, rol)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteUser(user: UserEntity): Result<Unit> {
+        return try {
+            userDao.deleteById(user.idUsuario)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

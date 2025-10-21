@@ -12,5 +12,5 @@ data class UserEntity(
     val rut: String,
     val correo: String,
     val contrasena: String,
-    val rol: String = "usuario" // "usuario", "vendedor" o "admin"
+    val rol: String = "usuario", // "usuario", "vendedor" o "admin"
 )

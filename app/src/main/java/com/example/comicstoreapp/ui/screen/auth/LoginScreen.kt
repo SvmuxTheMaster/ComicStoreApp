@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.comicstoreapp.R
 import androidx.navigation.NavHostController
-import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff

@@ -34,7 +34,7 @@ fun AppScaffold(
         )
         "vendedor" -> listOf(
             "Pedidos" to "pedidos",
-            "Gestionar stock" to "stock"
+            "Gestionar stock" to "gestionarStock"
         )
         "usuario" -> listOf( // usuario
             "Ver productos" to "comics",

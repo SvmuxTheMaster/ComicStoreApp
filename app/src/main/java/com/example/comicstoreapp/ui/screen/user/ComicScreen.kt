@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.R
 import com.example.comicstoreapp.ui.components.ComicCard
-import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 
 @Composable
 fun ComicScreen(navController: NavHostController, vm: AuthViewModel,) {

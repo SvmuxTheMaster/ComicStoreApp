@@ -19,10 +19,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.R
-import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 
 
 @Composable

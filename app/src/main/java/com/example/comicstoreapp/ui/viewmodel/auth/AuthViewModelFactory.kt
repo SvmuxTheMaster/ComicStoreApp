@@ -1,4 +1,4 @@
-package com.example.comicstoreapp.ui.viewmodel
+package com.example.comicstoreapp.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -1,14 +1,10 @@
 package com.example.comicstoreapp.ui.screen.admin
 
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.components.AppScaffold
-import com.example.comicstoreapp.ui.viewmodel.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 
 
 @Composable
