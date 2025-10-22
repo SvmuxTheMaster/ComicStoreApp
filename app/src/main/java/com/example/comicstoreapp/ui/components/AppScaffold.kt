@@ -33,7 +33,7 @@ fun AppScaffold(
             "Ver reportes" to "verReportes",
         )
         "vendedor" -> listOf(
-            "Pedidos" to "pedidos",
+            "Pedidos" to "gestionarPedidos",
             "Gestionar stock" to "gestionarStock"
         )
         "usuario" -> listOf( // usuario

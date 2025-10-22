@@ -3,8 +3,7 @@ package com.example.comicstoreapp.data.repository
 import com.example.comicstoreapp.data.local.inventario.InventarioDao
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 
-
-class InventarioRepository ( private val inventarioDao: InventarioDao) {
+class InventarioRepository(private val inventarioDao: InventarioDao) {
 
     suspend fun getAll(): Result<List<InventarioEntity>> = try {
         Result.success(inventarioDao.getAll())
@@ -33,4 +32,11 @@ class InventarioRepository ( private val inventarioDao: InventarioDao) {
         Result.failure(e)
     }
 
+    // 🟢 NUEVO: función específica para el vendedor, para actualizar stock rápidamente
+    suspend fun updateStock(idProducto: Long, nuevoStock: Int): Result<Unit> = try {
+        inventarioDao.updateStock(idProducto, nuevoStock)
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

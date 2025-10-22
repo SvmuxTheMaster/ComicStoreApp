@@ -20,7 +20,7 @@ import com.example.comicstoreapp.ui.screen.admin.GestionUserScreenVm
 import com.example.comicstoreapp.ui.screen.admin.HomeAdminScreen
 import com.example.comicstoreapp.ui.screen.auth.LoginScreenVm
 import com.example.comicstoreapp.ui.screen.auth.RegisterScreenVm
-import com.example.comicstoreapp.ui.screen.seller.GestionarStockScreen
+import com.example.comicstoreapp.ui.screen.seller.GestionarStockScreenVm
 import com.example.comicstoreapp.ui.screen.seller.PedidosScreen
 import com.example.comicstoreapp.ui.screen.user.ComicScreen
 import com.example.comicstoreapp.ui.screen.user.HomeScreen
@@ -30,6 +30,8 @@ import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModelFactory
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModel
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModelFactory
+import com.example.comicstoreapp.ui.viewmodel.seller.VendedorViewModel
+import com.example.comicstoreapp.ui.viewmodel.seller.VendedorViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +61,8 @@ fun AppRoot() {
     val authViewModel: AuthViewModel = viewModel( factory = AuthViewModelFactory( userRepository ) )
     val adminViewModel: AdminViewModel = viewModel( factory = AdminViewModelFactory( userRepository ))
     val inventarioViewModel: InventarioViewModel = viewModel( factory = InventarioViewModelFactory( inventarioRepository ))
+    val vendedorViewModel: VendedorViewModel = viewModel( factory = VendedorViewModelFactory( inventarioRepository ))
+
 
 
     val navController = rememberNavController()
@@ -81,7 +85,7 @@ fun AppRoot() {
 
         //SellerScreen
         composable("homeSeller") { SellerScreen(navController, authViewModel) }
-        composable("gestionarStock") { GestionarStockScreen(navController, authViewModel) }
+        composable("gestionarStock") { GestionarStockScreenVm( navController, authViewModel, vendedorViewModel ) }
         composable("gestionarPedidos") { PedidosScreen(navController, authViewModel) }
     }
 }

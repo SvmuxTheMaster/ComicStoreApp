@@ -29,4 +29,9 @@ interface InventarioDao {
     // Buscar productos por título o categoría
     @Query("SELECT * FROM inventario WHERE titulo LIKE :query OR categoria LIKE :query ORDER BY titulo ASC")
     suspend fun search(query: String): List<InventarioEntity>
+
+    // 🟢 Actualizar solo el stock (para uso del vendedor)
+    @Query("UPDATE inventario SET stock = :nuevoStock WHERE idProducto = :idProducto")
+    suspend fun updateStock(idProducto: Long, nuevoStock: Int)
+
 }
