@@ -24,7 +24,7 @@ fun GestionUserScreenVm(
     val users by adminVm.admin.collectAsStateWithLifecycle()
 
     AppScaffold(
-        rol = "admin",
+        rol = authVm.userRole.collectAsState().value ?: "",
         navController = navController,
         onLogout = {
             authVm.onLogOut()

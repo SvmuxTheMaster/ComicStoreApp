@@ -59,7 +59,7 @@ fun GestionInventarioScreen(
     var deleteItem by remember { mutableStateOf<InventarioEntity?>(null) }
 
     AppScaffold(
-        rol = "admin",
+        rol = authVm.userRole.collectAsState().value ?: "",
         navController = navController,
         onLogout = {
             authVm.onLogOut()

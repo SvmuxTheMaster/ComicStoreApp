@@ -2,20 +2,20 @@ package com.example.comicstoreapp.ui.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.comicstoreapp.data.local.datastore.UserPreferences
 import com.example.comicstoreapp.data.repository.UserRepository
 
 
 class AuthViewModelFactory(
-    private val repository: UserRepository                       // Dependencia que inyectaremos
+    private val repository: UserRepository,
+    private val userPrefs: UserPreferences
 ) : ViewModelProvider.Factory {
 
-    @Suppress("UNCHECKED_CAST")                                   // Evitar warning de cast genérico
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // Si solicitan AuthViewModel, lo creamos con el repo.
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            return AuthViewModel(repository) as T
+            return AuthViewModel(repository, userPrefs) as T
         }
-        // Si piden otra clase, lanzamos error descriptivo.
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

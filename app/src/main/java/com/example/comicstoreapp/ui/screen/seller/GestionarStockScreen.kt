@@ -69,7 +69,7 @@ fun GestionarStockScreen(
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
     AppScaffold(
-        rol = "admin",
+        rol = authVm.userRole.collectAsState().value ?: "",
         navController = navController,
         onLogout = {
             authVm.onLogOut()

@@ -1,6 +1,7 @@
 package com.example.comicstoreapp.ui.viewmodel.auth
 
 import androidx.lifecycle.*
+import com.example.comicstoreapp.data.local.datastore.UserPreferences
 import com.example.comicstoreapp.data.repository.UserRepository
 import com.example.comicstoreapp.domain.validation.*
 import kotlinx.coroutines.delay
@@ -39,47 +40,68 @@ data class RegisterUiState(
 )
 
 
-class AuthViewModel ( private val repository: UserRepository): ViewModel() {
-    private val _login = MutableStateFlow(LoginUiState())   // Estado interno (Login)
-    val login: StateFlow<LoginUiState> = _login             // Exposición inmutable
+class AuthViewModel(
+    private val repository: UserRepository,
+    private val userPreferences: UserPreferences
+) : ViewModel() {
 
-    private val _register = MutableStateFlow(RegisterUiState()) // Estado interno (Registro)
-    val register: StateFlow<RegisterUiState> = _register        // Exposición inmutable
+    private val _login = MutableStateFlow(LoginUiState())
+    val login: StateFlow<LoginUiState> = _login
 
-    // ----------------- LOGIN: handlers y envío -----------------
+    private val _register = MutableStateFlow(RegisterUiState())
+    val register: StateFlow<RegisterUiState> = _register
 
-    fun onLoginEmailChange(value: String) {                 // Handler cuando cambia el email
-        _login.update { it.copy(correo = value, correoError = validarCorreo(value)) } // Guardamos + validamos
-        recomputeLoginCanSubmit()                           // Recalculamos habilitado
+    // Flujos que leen directamente desde DataStore
+    val isLoggedIn: StateFlow<Boolean> = userPreferences.isLoggedIn.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+
+    val userRole: StateFlow<String?> = userPreferences.userRole.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
+
+    // ----------------- LOGIN -----------------
+
+    fun onLoginEmailChange(value: String) {
+        _login.update { it.copy(correo = value, correoError = validarCorreo(value)) }
+        recomputeLoginCanSubmit()
     }
 
-    fun onLoginPassChange(value: String) {                  // Handler cuando cambia la contraseña
-        _login.update { it.copy(contrasena = value) }             // Guardamos (sin validar fuerza aquí)
-        recomputeLoginCanSubmit()                           // Recalculamos habilitado
+    fun onLoginPassChange(value: String) {
+        _login.update { it.copy(contrasena = value) }
+        recomputeLoginCanSubmit()
     }
 
-    private fun recomputeLoginCanSubmit() {                 // Regla para habilitar botón "Entrar"
-        val s = _login.value                                // Tomamos el estado actual
-        val can = s.correoError == null &&                   // Email válido
-                s.correo.isNotBlank() &&                   // Email no vacío
-                s.contrasena.isNotBlank()                       // Password no vacía
-        _login.update { it.copy(canSubmit = can) }          // Actualizamos el flag
+    private fun recomputeLoginCanSubmit() {
+        val s = _login.value
+        val can = s.correoError == null &&
+                s.correo.isNotBlank() &&
+                s.contrasena.isNotBlank()
+        _login.update { it.copy(canSubmit = can) }
     }
 
     fun submitLogin() {
         val s = _login.value
         if (!s.canSubmit || s.isSubmitting) return
 
-
         viewModelScope.launch {
             _login.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
-            delay(500)
+            delay(400)
 
-            // Buscamos en la **colección en memoria** un usuario con ese email
             val result = repository.login(s.correo.trim(), s.contrasena.trim())
 
+            if (result.isSuccess) {
+                val user = result.getOrNull()
+                if (user != null) {
+                    userPreferences.saveUser(user.correo, user.nombre, user.rol)
+                }
+            }
 
-            // Interpreta el resultado y actualiza estado
             _login.update {
                 if (result.isSuccess) {
                     it.copy(
@@ -88,67 +110,79 @@ class AuthViewModel ( private val repository: UserRepository): ViewModel() {
                         errorMsg = null,
                         nombre = result.getOrNull()?.nombre,
                         rol = result.getOrNull()?.rol
-                    ) // OK: éxito
+                    )
                 } else {
-                    it.copy(isSubmitting = false, success = false,
-                        errorMsg = result.exceptionOrNull()?.message ?: "Error de autenticación")
+                    it.copy(
+                        isSubmitting = false,
+                        success = false,
+                        errorMsg = result.exceptionOrNull()?.message ?: "Error de autenticación"
+                    )
                 }
             }
         }
     }
 
-    fun clearLoginResult() {                                // Limpia banderas tras navegar
+    fun clearLoginResult() {
         _login.update { it.copy(success = false, errorMsg = null) }
     }
 
-    // ----------------- REGISTRO: handlers y envío -----------------
+    // ----------------- REGISTRO -----------------
 
-    fun onNameChange(value: String) {                       // Handler del nombre
-        val filtered = value.filter { it.isLetter() || it.isWhitespace() } // Filtramos números/símbolos (solo letras/espacios)
-        _register.update {                                  // Guardamos + validamos
-            it.copy(nombre = filtered, nombreError = validarNombre(filtered))
+    fun onNameChange(value: String) {
+        val filtered = value.filter { it.isLetter() || it.isWhitespace() }
+        _register.update { it.copy(nombre = filtered, nombreError = validarNombre(filtered)) }
+        recomputeRegisterCanSubmit()
+    }
+
+    fun onRegisterEmailChange(value: String) {
+        _register.update { it.copy(correo = value, correoError = validarCorreo(value)) }
+        recomputeRegisterCanSubmit()
+    }
+
+    fun onRutChange(value: String) {
+        _register.update { it.copy(rut = value, rutError = validarRut(value)) }
+        recomputeRegisterCanSubmit()
+    }
+
+    fun onRegisterPassChange(value: String) {
+        _register.update {
+            it.copy(contrasena = value, contrasenaError = validarContrasena(value))
         }
-        recomputeRegisterCanSubmit()                        // Recalculamos habilitado
-    }
-
-    fun onRegisterEmailChange(value: String) {              // Handler del email
-        _register.update { it.copy(correo = value, correoError = validarCorreo(value)) } // Guardamos + validamos
-        recomputeRegisterCanSubmit()
-    }
-
-    fun onRutChange(value: String) {                      // Handler del teléfono
-        _register.update {                                  // Guardamos + validamos
-            it.copy(rut = value, rutError = validarRut(value))
+        _register.update {
+            it.copy(contrasenaConfirmError = confirmarContrasena(it.contrasena, it.contrasenaConfirm))
         }
         recomputeRegisterCanSubmit()
     }
 
-    fun onRegisterPassChange(value: String) {               // Handler de la contraseña
-        _register.update { it.copy(contrasena = value, contrasenaError = validarContrasena(value)) } // Validamos seguridad
-        // Revalidamos confirmación con la nueva contraseña
-        _register.update { it.copy(contrasenaConfirmError = confirmarContrasena(it.contrasena, it.contrasenaConfirm)) }
+    fun onConfirmChange(value: String) {
+        _register.update {
+            it.copy(
+                contrasenaConfirm = value,
+                contrasenaConfirmError = confirmarContrasena(it.contrasena, value)
+            )
+        }
         recomputeRegisterCanSubmit()
     }
 
-    fun onConfirmChange(value: String) {                    // Handler de confirmación
-        _register.update { it.copy(contrasenaConfirm = value, contrasenaConfirmError = confirmarContrasena(it.contrasena, value)) } // Guardamos + validamos
-        recomputeRegisterCanSubmit()
+    private fun recomputeRegisterCanSubmit() {
+        val s = _register.value
+        val noErrors = listOf(
+            s.nombreError, s.correoError, s.rutError,
+            s.contrasenaError, s.contrasenaConfirmError
+        ).all { it == null }
+        val filled = s.nombre.isNotBlank() && s.correo.isNotBlank() &&
+                s.rut.isNotBlank() && s.contrasena.isNotBlank() &&
+                s.contrasenaConfirm.isNotBlank()
+        _register.update { it.copy(canSubmit = noErrors && filled) }
     }
 
-    private fun recomputeRegisterCanSubmit() {              // Habilitar "Registrar" si todo OK
-        val s = _register.value                              // Tomamos el estado actual
-        val noErrors = listOf(s.nombreError, s.correoError, s.rutError, s.contrasenaError, s.contrasenaConfirmError).all { it == null } // Sin errores
-        val filled = s.nombre.isNotBlank() && s.correo.isNotBlank() && s.rut.isNotBlank() && s.contrasena.isNotBlank() && s.contrasenaConfirm.isNotBlank() // Todo lleno
-        _register.update { it.copy(canSubmit = noErrors && filled) } // Actualizamos flag
-    }
+    fun submitRegister() {
+        val s = _register.value
+        if (!s.canSubmit || s.isSubmitting) return
 
-    fun submitRegister() {                                  // Acción de registro (simulación async)
-        val s = _register.value                              // Snapshot del estado
-        if (!s.canSubmit || s.isSubmitting) return          // Evitamos reentradas
-        viewModelScope.launch {                             // Corrutina
-            _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) } // Loading
-            delay(700)                                      // Simulamos IO
-
+        viewModelScope.launch {
+            _register.update { it.copy(isSubmitting = true, errorMsg = null, success = false) }
+            delay(600)
 
             val result = repository.register(
                 s.nombre.trim(),
@@ -158,23 +192,31 @@ class AuthViewModel ( private val repository: UserRepository): ViewModel() {
                 "usuario"
             )
 
-            // Interpreta resultado y actualiza estado
             _register.update {
                 if (result.isSuccess) {
-                    it.copy(isSubmitting = false, success = true, errorMsg = null)  // OK
+                    it.copy(isSubmitting = false, success = true, errorMsg = null)
                 } else {
-                    it.copy(isSubmitting = false, success = false,
-                        errorMsg = result.exceptionOrNull()?.message ?: "No se pudo registrar")
+                    it.copy(
+                        isSubmitting = false,
+                        success = false,
+                        errorMsg = result.exceptionOrNull()?.message ?: "No se pudo registrar"
+                    )
                 }
             }
         }
     }
 
-    fun clearRegisterResult() {                             // Limpia banderas tras navegar
+    fun clearRegisterResult() {
         _register.update { it.copy(success = false, errorMsg = null) }
     }
 
-    fun onLogOut(){
+    // ----------------- LOGOUT -----------------
+
+    fun onLogOut() {
+        viewModelScope.launch {
+            userPreferences.clearUser()
+        }
+
         _login.update {
             it.copy(
                 correo = "",
@@ -197,8 +239,4 @@ class AuthViewModel ( private val repository: UserRepository): ViewModel() {
             )
         }
     }
-
-
-
-
 }

@@ -67,6 +67,11 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")    // <-- NUEVO
     implementation("androidx.room:room-ktx:2.6.1")        // <-- NUEVO
 
+    // DataStore Preferences
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
+// Para Kotlin coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     // Compilador de Room vía KSP
     ksp("androidx.room:room-compiler:2.6.1")
 

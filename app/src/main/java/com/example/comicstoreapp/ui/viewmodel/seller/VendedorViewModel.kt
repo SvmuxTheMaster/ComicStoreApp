@@ -3,7 +3,9 @@ package com.example.comicstoreapp.ui.viewmodel.seller
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
+import com.example.comicstoreapp.data.local.pedido.PedidoEntity
 import com.example.comicstoreapp.data.repository.InventarioRepository
+import com.example.comicstoreapp.data.repository.PedidoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -11,12 +13,16 @@ import kotlinx.coroutines.launch
 
 data class VendedorUiState(
     val inventario: List<InventarioEntity> = emptyList(),
+    val pedido: List<PedidoEntity> = emptyList(),
     val loading: Boolean = false,
     val errorMsg: String? = null,
     val successMsg: String? = null
 )
 
-class VendedorViewModel(private val repository: InventarioRepository) : ViewModel() {
+class VendedorViewModel(
+    private val repository: InventarioRepository,
+    private val pedidoRepository: PedidoRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(VendedorUiState())
     val state: StateFlow<VendedorUiState> = _state
@@ -81,6 +87,59 @@ class VendedorViewModel(private val repository: InventarioRepository) : ViewMode
                 cargarInventario()
             } else {
                 _state.update { it.copy(errorMsg = "Error al eliminar producto") }
+            }
+        }
+    }
+
+
+    //Funciones para pedidos
+
+    fun cargarPedidos() {
+        viewModelScope.launch {
+            _state.update { it.copy(loading = true, errorMsg = null) }
+            val result = pedidoRepository.getAll()
+            _state.update {
+                it.copy(
+                    pedido = result.getOrNull() ?: emptyList(),
+                    loading = false,
+                    errorMsg = result.exceptionOrNull()?.message
+                )
+            }
+        }
+    }
+
+
+    fun actualizarEstadoPedido(pedido: PedidoEntity, nuevoEstado: String) {
+        viewModelScope.launch {
+            try {
+                val actualizado = pedido.copy(estado = nuevoEstado)
+                pedidoRepository.update(actualizado)
+                _state.update {
+                    it.copy(
+                        pedido = it.pedido.map { p -> if (p.idPedido == pedido.idPedido) actualizado else p },
+                        successMsg = "Estado actualizado a $nuevoEstado"
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMsg = e.message) }
+            }
+        }
+    }
+
+    fun eliminarPedido(pedido: PedidoEntity) {
+        viewModelScope.launch {
+            try {
+                pedidoRepository.getById(pedido.idPedido).getOrNull()?.let {
+                    // en Room deberías tener un dao.delete(), lo podemos agregar si quieres
+                }
+                _state.update {
+                    it.copy(
+                        pedido = it.pedido.filter { p -> p.idPedido != pedido.idPedido },
+                        successMsg = "Pedido eliminado"
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMsg = e.message) }
             }
         }
     }
