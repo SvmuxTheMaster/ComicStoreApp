@@ -74,11 +74,11 @@ fun AppRoot() {
     // NavController
     val navController = rememberNavController()
 
-    // 🔥 Leemos el estado de login y rol en tiempo real
+
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
     val userRole by authViewModel.userRole.collectAsState()
 
-    // 🔄 Redirección automática según estado de sesión
+    //Redirección automática según estado de sesión
     LaunchedEffect(isLoggedIn, userRole) {
         when {
             !isLoggedIn -> {
@@ -113,7 +113,7 @@ fun AppRoot() {
 
         // Cliente
         composable("home") { HomeScreen(navController, authViewModel) }
-        composable("comics") { ComicScreen(navController, authViewModel) }
+        composable("comics") { ComicScreen(navController, authViewModel, inventarioViewModel) }
 
         // Admin
         composable("homeAdmin") { HomeAdminScreen(navController, authViewModel) }

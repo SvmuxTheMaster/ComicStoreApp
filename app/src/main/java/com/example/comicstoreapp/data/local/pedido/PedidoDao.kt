@@ -24,4 +24,8 @@ interface PedidoDao {
     // Lista pedidos de un usuario específico
     @Query("SELECT * FROM pedidos WHERE idusuario = :usuarioId ORDER BY fecha DESC")
     suspend fun getByUsuario(usuarioId: Long): List<PedidoEntity>
+
+    @Delete
+    suspend fun delete(pedido: PedidoEntity)
+
 }

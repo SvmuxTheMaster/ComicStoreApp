@@ -129,9 +129,10 @@ class VendedorViewModel(
     fun eliminarPedido(pedido: PedidoEntity) {
         viewModelScope.launch {
             try {
-                pedidoRepository.getById(pedido.idPedido).getOrNull()?.let {
-                    // en Room deberías tener un dao.delete(), lo podemos agregar si quieres
-                }
+                // Elimina de la base de datos
+                pedidoRepository.delete(pedido)
+
+                // Actualiza el estado local
                 _state.update {
                     it.copy(
                         pedido = it.pedido.filter { p -> p.idPedido != pedido.idPedido },
@@ -143,6 +144,8 @@ class VendedorViewModel(
             }
         }
     }
+
+
 
     fun clearMessages() {
         _state.update { it.copy(successMsg = null, errorMsg = null) }

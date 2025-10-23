@@ -25,4 +25,9 @@ class PedidoRepository(private val dao: PedidoDao) {
     suspend fun getById(id: Long): Result<PedidoEntity?> = runCatching {
         dao.getById(id)
     }
+
+    suspend fun delete(pedido: PedidoEntity): Result<Unit> = runCatching {
+        dao.delete(pedido)
+    }
+
 }
