@@ -1,6 +1,8 @@
 package com.example.comicstoreapp.ui.screen.seller
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
@@ -135,6 +138,19 @@ fun ProductoCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
+
+            producto.fotoUri?.let { uriString ->
+                val uri = Uri.parse(uriString)
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = "Foto del cómic",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .padding(bottom = 8.dp)
+                )
+            }
+
             Text(text = producto.titulo, style = MaterialTheme.typography.titleMedium)
             Text(text = "ID: ${producto.idProducto}")
             Text(text = "Categoría: ${producto.categoria}")

@@ -12,5 +12,6 @@ data class InventarioEntity(
     val descripcion: String,
     val categoria: String,
     val precio: Int,
-    val stock: Int
+    val stock: Int,
+    val fotoUri: String? = null // nueva columna para la URI de la foto
 )

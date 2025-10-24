@@ -1,6 +1,10 @@
 package com.example.comicstoreapp.ui.screen.admin
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,12 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModel
+import java.io.File
+
 
 @Composable
 fun GestionInventarioVm(
@@ -57,6 +65,8 @@ fun GestionInventarioScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var editItem by remember { mutableStateOf<InventarioEntity?>(null) }
     var deleteItem by remember { mutableStateOf<InventarioEntity?>(null) }
+
+
 
     AppScaffold(
         rol = authVm.userRole.collectAsState().value ?: "",
@@ -103,7 +113,7 @@ fun GestionInventarioScreen(
             }
         }
 
-        // 🟢 Dialog para agregar producto
+
         if (showAddDialog) {
             InventarioDialog(
                 title = "Agregar nuevo producto",
@@ -115,7 +125,7 @@ fun GestionInventarioScreen(
             )
         }
 
-        // 🟡 Dialog para editar producto
+
         editItem?.let { item ->
             InventarioDialog(
                 title = "Editar producto",
@@ -128,7 +138,7 @@ fun GestionInventarioScreen(
             )
         }
 
-        // 🔴 Confirmación de eliminación
+
         deleteItem?.let { item ->
             AlertDialog(
                 onDismissRequest = { deleteItem = null },
@@ -165,6 +175,20 @@ fun InventarioItemCard(
         elevation = CardDefaults.cardElevation(3.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            //mostrar imagen en gestion de inventario
+            item.fotoUri?.let { uriString ->
+                val uri = Uri.parse(uriString)
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = "Foto del cómic",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .padding(bottom = 8.dp)
+                )
+            }
+
             Text("Título: ${item.titulo}")
             Text("Autor: ${item.autor}")
             Text("Categoría: ${item.categoria}")
@@ -190,12 +214,53 @@ fun InventarioDialog(
     onDismiss: () -> Unit,
     onConfirm: (InventarioEntity) -> Unit
 ) {
+    val context = LocalContext.current
     var titulo by remember { mutableStateOf(productoInicial?.titulo ?: "") }
     var autor by remember { mutableStateOf(productoInicial?.autor ?: "") }
     var descripcion by remember { mutableStateOf(productoInicial?.descripcion ?: "") }
     var categoria by remember { mutableStateOf(productoInicial?.categoria ?: "") }
     var precio by remember { mutableStateOf(productoInicial?.precio?.toString() ?: "") }
     var stock by remember { mutableStateOf(productoInicial?.stock?.toString() ?: "") }
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Launcher de cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            Toast.makeText(context, "Foto tomada", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "No se tomó la foto", Toast.LENGTH_SHORT).show()
+            fotoUri = null
+        }
+    }
+
+    // Launcher para pedir permiso de cámara
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            // Crear archivo solo después de permiso
+            val file = File(context.cacheDir, "comic_${System.currentTimeMillis()}.jpg")
+            file.parentFile?.mkdirs()
+
+            // URI local
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+
+            // Guardar en estado para mostrar en UI
+            fotoUri = uri
+
+            // Usar la variable local, no la propiedad delegada
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -207,6 +272,7 @@ fun InventarioDialog(
                 OutlinedTextField(value = descripcion, onValueChange = { descripcion = it }, label = { Text("Descripción") })
                 OutlinedTextField(value = categoria, onValueChange = { categoria = it }, label = { Text("Categoría") })
                 Row {
+
                     OutlinedTextField(
                         value = precio,
                         onValueChange = { precio = it.filter { c -> c.isDigit() } },
@@ -223,6 +289,27 @@ fun InventarioDialog(
                         modifier = Modifier.weight(1f)
                     )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botón para tomar foto
+                Button(onClick = {
+                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                }) {
+                    Text("Tomar foto del cómic")
+                }
+
+                // Mostrar imagen tomada
+                fotoUri?.let { uri ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Foto del cómic",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    )
+                }
             }
         },
         confirmButton = {
@@ -235,7 +322,8 @@ fun InventarioDialog(
                             descripcion = descripcion,
                             categoria = categoria,
                             precio = precio.toInt(),
-                            stock = stock.toInt()
+                            stock = stock.toInt(),
+                            fotoUri = fotoUri?.toString()
                         )
                     )
                 }

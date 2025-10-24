@@ -69,10 +69,24 @@ dependencies {
 
     // DataStore Preferences
     implementation("androidx.datastore:datastore-preferences:1.1.0")
-// Para Kotlin coroutines
+
+    // Para Kotlin coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     // Compilador de Room vía KSP
     ksp("androidx.room:room-compiler:2.6.1")
+
+    //recurso nativo camara
+    implementation("androidx.camera:camera-camera2:1.3.0-alpha06")
+
+    //manejo de imagenes
+    implementation("androidx.activity:activity-compose:1.9.2")
+
+    // coil para cargar imágenes en Compose
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
+
+
 
 }
