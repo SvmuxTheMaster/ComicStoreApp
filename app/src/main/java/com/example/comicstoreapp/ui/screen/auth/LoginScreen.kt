@@ -2,6 +2,9 @@ package com.example.comicstoreapp.ui.screen.auth
 
 
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.padding
@@ -23,7 +26,7 @@ import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-
+import androidx.compose.ui.graphics.graphicsLayer
 
 
 @Composable
@@ -172,10 +175,37 @@ fun LoginScreen(
 
 @Composable
 fun Logo() {
-    Image(
-        painter = painterResource(id = R.drawable.logo), // mi imagen
-        modifier = Modifier.size(250.dp), // tamaño de mi imagen
-        contentDescription = "Logo"
+    var visible by remember { mutableStateOf(false) }
 
+    // Lanza la animación una vez al entrar en la pantalla
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
+    // Animación de escala (de 0 a 1)
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = FastOutSlowInEasing
+        )
+    )
+
+    // Animación de opacidad
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = 1000)
+    )
+
+    Image(
+        painter = painterResource(id = R.drawable.logo),
+        contentDescription = "Logo",
+        modifier = Modifier
+            .size(250.dp)
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+                alpha = alpha
+            )
     )
 }
