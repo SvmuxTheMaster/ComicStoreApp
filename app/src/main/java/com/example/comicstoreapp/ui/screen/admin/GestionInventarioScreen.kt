@@ -112,8 +112,6 @@ fun GestionInventarioScreen(
                 }
             }
         }
-
-
         if (showAddDialog) {
             InventarioDialog(
                 title = "Agregar nuevo producto",
@@ -124,8 +122,6 @@ fun GestionInventarioScreen(
                 }
             )
         }
-
-
         editItem?.let { item ->
             InventarioDialog(
                 title = "Editar producto",
@@ -137,8 +133,6 @@ fun GestionInventarioScreen(
                 }
             )
         }
-
-
         deleteItem?.let { item ->
             AlertDialog(
                 onDismissRequest = { deleteItem = null },
@@ -261,7 +255,6 @@ fun InventarioDialog(
         }
     }
 
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -270,7 +263,8 @@ fun InventarioDialog(
                 OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") })
                 OutlinedTextField(value = autor, onValueChange = { autor = it }, label = { Text("Autor") })
                 OutlinedTextField(value = descripcion, onValueChange = { descripcion = it }, label = { Text("Descripción") })
-                OutlinedTextField(value = categoria, onValueChange = { categoria = it }, label = { Text("Categoría") })
+                CategoriaDropdownSimple(categoria = categoria, onCategoriaChange = { categoria = it })
+
                 Row {
 
                     OutlinedTextField(
@@ -333,4 +327,47 @@ fun InventarioDialog(
             TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoriaDropdownSimple(
+    categoria: String,
+    onCategoriaChange: (String) -> Unit
+) {
+    val categorias = listOf("DC COMICS", "MARVEL COMICS", "MANGAS")
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = categoria,
+            onValueChange = {},
+            label = { Text("Categoría") },
+            readOnly = true,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            categorias.forEach { cat ->
+                DropdownMenuItem(
+                    text = { Text(cat) },
+                    onClick = {
+                        onCategoriaChange(cat)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
 }

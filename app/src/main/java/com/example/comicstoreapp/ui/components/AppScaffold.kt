@@ -109,28 +109,30 @@ fun AppScaffold(
                         }
                     },
                     actions = {
-                        val totalItems = carritoVm?.carrito?.collectAsState()?.value?.sumOf { it.cantidad } ?: 0 //  se reemplaza con el valor desde ViewModel
+                        if (rol == "usuario") { // Solo para usuario
+                            val totalItems = carritoVm?.carrito?.collectAsState()?.value?.sumOf { it.cantidad } ?: 0
 
-                        Box(
-                            contentAlignment = Alignment.TopEnd
-                        ) {
-                            IconButton(onClick = {
-                                navController.navigate("carrito")
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.ShoppingCart,
-                                    contentDescription = "Carrito de compras"
-                                )
-                            }
+                            Box(
+                                contentAlignment = Alignment.TopEnd
+                            ) {
+                                IconButton(onClick = {
+                                    navController.navigate("carrito")
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ShoppingCart,
+                                        contentDescription = "Carrito de compras"
+                                    )
+                                }
 
-                            if (totalItems > 0) {
-                                Badge(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .offset(x = (-4).dp, y = (4).dp)
-                                ) {
-                                    Text(totalItems.toString())
+                                if (totalItems > 0) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = (-4).dp, y = (4).dp)
+                                    ) {
+                                        Text(totalItems.toString())
+                                    }
                                 }
                             }
                         }

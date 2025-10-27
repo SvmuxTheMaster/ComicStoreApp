@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -63,7 +65,10 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(inventarioState.inventario) { comic ->
-                    ComicCard(comic = comic)
+                    ComicCard(
+                        comic = comic,
+                        onAddToCart = { carritoVm.agregarProducto(it) }
+                    )
                 }
             }
         }
@@ -71,14 +76,21 @@ fun HomeScreen(
 }
 
 @Composable
-fun ComicCard(comic: InventarioEntity) {
+fun ComicCard(
+    comic: InventarioEntity,
+    onAddToCart: (InventarioEntity) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(260.dp),
         elevation = CardDefaults.cardElevation(3.dp)
     ) {
-        Column(Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             comic.fotoUri?.let { uri ->
                 Image(
                     painter = rememberAsyncImagePainter(uri),
@@ -89,8 +101,26 @@ fun ComicCard(comic: InventarioEntity) {
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(comic.titulo, style = MaterialTheme.typography.titleSmall)
-            Text("$${comic.precio}", style = MaterialTheme.typography.bodyMedium)
+
+            Text(
+                text = comic.titulo,
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "$${comic.precio}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Button(
+                onClick = { onAddToCart(comic) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Añadir al carrito")
+            }
         }
     }
 }
