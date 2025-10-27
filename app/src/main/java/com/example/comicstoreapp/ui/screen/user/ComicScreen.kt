@@ -20,25 +20,27 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
+import com.example.comicstoreapp.ui.viewmodel.carro.CarritoViewModel
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModel
 
 @Composable
 fun ComicScreen(
     navController: NavHostController,
     authVm: AuthViewModel,
-    inventarioVm: InventarioViewModel
+    inventarioVm: InventarioViewModel,
+    carritoVm: CarritoViewModel
 ) {
     val inventarioState = inventarioVm.inventario.collectAsState().value
 
+
     AppScaffold(
-        rol = authVm.userRole.collectAsState().value ?: "usuario",
+        rol = authVm.userRole.collectAsState().value ?: "",
         navController = navController,
         onLogout = {
             authVm.onLogOut()
-            navController.navigate("login") {
-                popUpTo("0") { inclusive = true }
-            }
-        }
+            navController.navigate("login") { popUpTo("0") { inclusive = true } }
+        },
+        carritoVm = carritoVm
     ) {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Text("Catálogo de Comics", style = MaterialTheme.typography.titleLarge)
@@ -58,7 +60,7 @@ fun ComicScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(inventarioState.inventario) { item ->
-                        ComicItemCard(item)
+                        ComicItemCard(item, carritoVm)
                     }
                 }
             }
@@ -67,7 +69,7 @@ fun ComicScreen(
 }
 
 @Composable
-fun ComicItemCard(item: InventarioEntity) {
+fun ComicItemCard(item: InventarioEntity, carritoVm: CarritoViewModel) {
 
     val context = LocalContext.current
 
@@ -105,9 +107,10 @@ fun ComicItemCard(item: InventarioEntity) {
             ) {
                 Button(
                     onClick = {
+                        carritoVm.agregarProducto(item) // <-- agregar al carrito
                         Toast.makeText(
                             context,
-                            "${item.titulo} agregado al carro de compras",
+                            "${item.titulo} agregado al carrito",
                             Toast.LENGTH_SHORT
                         ).show()
                     },

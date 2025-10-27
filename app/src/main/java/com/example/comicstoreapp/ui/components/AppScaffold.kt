@@ -5,12 +5,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.comicstoreapp.ui.viewmodel.carro.CarritoViewModel
 import kotlinx.coroutines.launch
 
 
@@ -20,6 +24,7 @@ fun AppScaffold(
     rol: String,
     navController: NavHostController,
     onLogout: () -> Unit,
+    carritoVm: CarritoViewModel? = null,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -38,7 +43,7 @@ fun AppScaffold(
         )
         "usuario" -> listOf( // usuario
             "Ver productos" to "comics",
-            "Historial de compras" to "historial"
+            "Inicio" to "home"
         )
         else -> emptyList()
     }
@@ -101,6 +106,33 @@ fun AppScaffold(
                             }
                         }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menú")
+                        }
+                    },
+                    actions = {
+                        val totalItems = carritoVm?.carrito?.collectAsState()?.value?.sumOf { it.cantidad } ?: 0 //  se reemplaza con el valor desde ViewModel
+
+                        Box(
+                            contentAlignment = Alignment.TopEnd
+                        ) {
+                            IconButton(onClick = {
+                                navController.navigate("carrito")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = "Carrito de compras"
+                                )
+                            }
+
+                            if (totalItems > 0) {
+                                Badge(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = (-4).dp, y = (4).dp)
+                                ) {
+                                    Text(totalItems.toString())
+                                }
+                            }
                         }
                     }
                 )

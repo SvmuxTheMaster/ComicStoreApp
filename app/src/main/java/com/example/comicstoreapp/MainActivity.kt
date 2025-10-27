@@ -25,6 +25,7 @@ import com.example.comicstoreapp.ui.screen.admin.GestionUserScreenVm
 import com.example.comicstoreapp.ui.screen.admin.HomeAdminScreen
 import com.example.comicstoreapp.ui.screen.auth.LoginScreenVm
 import com.example.comicstoreapp.ui.screen.auth.RegisterScreenVm
+import com.example.comicstoreapp.ui.screen.carro.CarroDeComprasScreen
 import com.example.comicstoreapp.ui.screen.seller.GestionarStockScreenVm
 import com.example.comicstoreapp.ui.screen.seller.PedidosScreenVm
 import com.example.comicstoreapp.ui.screen.user.ComicScreen
@@ -33,6 +34,7 @@ import com.example.comicstoreapp.ui.viewmodel.admin.AdminViewModel
 import com.example.comicstoreapp.ui.viewmodel.admin.AdminViewModelFactory
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModelFactory
+import com.example.comicstoreapp.ui.viewmodel.carro.CarritoViewModel
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModel
 import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModelFactory
 import com.example.comicstoreapp.ui.viewmodel.seller.VendedorViewModel
@@ -70,6 +72,8 @@ fun AppRoot() {
     val adminViewModel: AdminViewModel = viewModel(factory = AdminViewModelFactory(userRepository))
     val inventarioViewModel: InventarioViewModel = viewModel(factory = InventarioViewModelFactory(inventarioRepository))
     val vendedorViewModel: VendedorViewModel = viewModel(factory = VendedorViewModelFactory(inventarioRepository, pedidoRepository))
+    val carritoVm: CarritoViewModel = viewModel()
+
 
     // NavController
     val navController = rememberNavController()
@@ -112,14 +116,16 @@ fun AppRoot() {
         composable("register") { RegisterScreenVm(navController, authViewModel) }
 
         // Cliente
-        composable("home") { HomeScreen(navController, authViewModel) }
-        composable("comics") { ComicScreen(navController, authViewModel, inventarioViewModel) }
+        composable("home") { HomeScreen(navController, authViewModel, inventarioViewModel, carritoVm) }
+        composable("comics") { ComicScreen(navController, authViewModel, inventarioViewModel, carritoVm )}
+        composable("carrito") { CarroDeComprasScreen( navController, authViewModel, carritoVm, onFinalizarCompra = { navController.navigate("home")}) }
+
 
         // Admin
         composable("homeAdmin") { HomeAdminScreen(navController, authViewModel) }
         composable("gestionInventario") { GestionInventarioVm(navController, authViewModel, inventarioViewModel) }
         composable("gestionUsuarios") { GestionUserScreenVm(navController, authViewModel, adminViewModel) }
-        composable("verReportes") { GestionReportes(navController, authViewModel) }
+        composable("verReportes") { GestionReportes( onVolverClick = { navController.navigate("homeAdmin") }) }
 
         // Vendedor
         composable("homeSeller") { SellerScreen(navController, authViewModel) }
