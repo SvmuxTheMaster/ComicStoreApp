@@ -18,7 +18,7 @@ import com.example.comicstoreapp.data.local.datastore.UserPreferences
 import com.example.comicstoreapp.data.repository.InventarioRepository
 import com.example.comicstoreapp.data.repository.PedidoRepository
 import com.example.comicstoreapp.data.repository.UserRepository
-import com.example.comicstoreapp.screen.seller.SellerScreen
+import com.example.comicstoreapp.ui.screen.seller.SellerScreen
 import com.example.comicstoreapp.ui.screen.admin.GestionInventarioVm
 import com.example.comicstoreapp.ui.screen.admin.GestionReportes
 import com.example.comicstoreapp.ui.screen.admin.GestionUserScreenVm
@@ -124,13 +124,13 @@ fun AppRoot() {
 
 
         // Admin
-        composable("homeAdmin") { HomeAdminScreen(navController, authViewModel) }
+        composable("homeAdmin") { HomeAdminScreen(navController, authViewModel, adminViewModel, inventarioViewModel) }
         composable("gestionInventario") { GestionInventarioVm(navController, authViewModel, inventarioViewModel) }
         composable("gestionUsuarios") { GestionUserScreenVm(navController, authViewModel, adminViewModel) }
         composable("verReportes") { GestionReportes( onVolverClick = { navController.navigate("homeAdmin") }) }
 
         // Vendedor
-        composable("homeSeller") { SellerScreen(navController, authViewModel) }
+        composable("homeSeller") { SellerScreen(navController, authViewModel, inventarioViewModel) }
         composable("gestionarStock") { GestionarStockScreenVm(navController, authViewModel, vendedorViewModel) }
         composable("gestionarPedidos") { PedidosScreenVm(navController, authViewModel, vendedorViewModel) }
     }
