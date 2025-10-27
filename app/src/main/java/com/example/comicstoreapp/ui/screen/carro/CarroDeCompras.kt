@@ -14,12 +14,16 @@ import androidx.navigation.NavHostController
 import com.example.comicstoreapp.ui.components.AppScaffold
 import com.example.comicstoreapp.ui.viewmodel.auth.AuthViewModel
 import com.example.comicstoreapp.ui.viewmodel.carro.CarritoViewModel
+import com.example.comicstoreapp.ui.viewmodel.inventario.InventarioViewModel
+import com.example.comicstoreapp.ui.viewmodel.seller.VendedorViewModel
 
 @Composable
 fun CarroDeComprasScreen(
     navController: NavHostController,
     authVm: AuthViewModel,
     carritoVm: CarritoViewModel,
+    inventarioVm: InventarioViewModel,
+    vendedorVm: VendedorViewModel,
     onFinalizarCompra: () -> Unit
 ) {
     val carrito by carritoVm.carrito.collectAsState()
@@ -84,6 +88,9 @@ fun CarroDeComprasScreen(
 
                 Button(
                     onClick = {
+                        inventarioVm.reducirStock(carrito)  // Actualiza stock
+                        val usuarioId = authVm.userId.value ?: 0L
+                        vendedorVm.crearPedido(usuarioId, carrito)
                         carritoVm.limpiarCarrito()
                         onFinalizarCompra()
                     },

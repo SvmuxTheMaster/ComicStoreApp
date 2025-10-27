@@ -65,6 +65,12 @@ class AuthViewModel(
         initialValue = null
     )
 
+    val userId: StateFlow<Long?> = userPreferences.userId.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
+
     // ----------------- LOGIN -----------------
 
     fun onLoginEmailChange(value: String) {
@@ -98,7 +104,7 @@ class AuthViewModel(
             if (result.isSuccess) {
                 val user = result.getOrNull()
                 if (user != null) {
-                    userPreferences.saveUser(user.correo, user.nombre, user.rol)
+                    userPreferences.saveUser(user.idUsuario, user.correo, user.nombre, user.rol)
                 }
             }
 

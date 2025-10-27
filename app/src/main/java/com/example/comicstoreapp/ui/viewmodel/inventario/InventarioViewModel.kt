@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 import com.example.comicstoreapp.data.repository.InventarioRepository
+import com.example.comicstoreapp.ui.viewmodel.carro.ItemCarrito
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -114,6 +115,31 @@ class InventarioViewModel(private val repository: InventarioRepository) : ViewMo
             }
         }
     }
+
+    fun reducirStock(compras: List<ItemCarrito>) {
+        viewModelScope.launch {
+            _inventario.update { it.copy(loading = true, errorMsg = null) }
+
+            // Lista actualizada
+            val inventarioActual = _inventario.value.inventario.toMutableList()
+
+            compras.forEach { item ->
+                val index = inventarioActual.indexOfFirst { it.idProducto == item.producto.idProducto }
+                if (index != -1) {
+                    val producto = inventarioActual[index]
+                    val nuevoStock = (producto.stock - item.cantidad).coerceAtLeast(0)
+                    inventarioActual[index] = producto.copy(stock = nuevoStock)
+                }
+            }
+
+            // Actualiza la UI
+            _inventario.update { it.copy(inventario = inventarioActual, loading = false) }
+
+            //actualiza  DB
+            inventarioActual.forEach { repository.update(it) }
+        }
+    }
+
 
     fun clearMessages() {
         _inventario.update { it.copy(errorMsg = null, successMsg = null) }

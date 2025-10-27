@@ -1,11 +1,14 @@
 package com.example.comicstoreapp.ui.viewmodel.seller
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.comicstoreapp.data.local.detalle.DetalleEntity
 import com.example.comicstoreapp.data.local.inventario.InventarioEntity
 import com.example.comicstoreapp.data.local.pedido.PedidoEntity
 import com.example.comicstoreapp.data.repository.InventarioRepository
 import com.example.comicstoreapp.data.repository.PedidoRepository
+import com.example.comicstoreapp.ui.viewmodel.carro.ItemCarrito
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -20,7 +23,7 @@ data class VendedorUiState(
 )
 
 class VendedorViewModel(
-    private val repository: InventarioRepository,
+    private val inventarioRepository: InventarioRepository,
     private val pedidoRepository: PedidoRepository
 ) : ViewModel() {
 
@@ -31,10 +34,11 @@ class VendedorViewModel(
         cargarInventario()
     }
 
+    // ----------------- INVENTARIO -----------------
     fun cargarInventario() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, errorMsg = null) }
-            val res = repository.getAll()
+            val res = inventarioRepository.getAll()
             if (res.isSuccess) {
                 _state.update { it.copy(inventario = res.getOrNull() ?: emptyList(), loading = false) }
             } else {
@@ -47,17 +51,14 @@ class VendedorViewModel(
         viewModelScope.launch {
             _state.update { it.copy(loading = true, errorMsg = null) }
             try {
-                val all = repository.getAll().getOrNull() ?: emptyList()
-
+                val all = inventarioRepository.getAll().getOrNull() ?: emptyList()
                 val resultados = all.filter { producto ->
                     val queryLower = query.lowercase()
                     val esIdCoincide = query.toIntOrNull()?.let { producto.idProducto.toInt() == it } ?: false
                     val esTextoCoincide = producto.titulo.lowercase().contains(queryLower) ||
                             producto.categoria.lowercase().contains(queryLower)
-
                     esIdCoincide || esTextoCoincide
                 }
-
                 _state.update { it.copy(inventario = resultados, loading = false) }
             } catch (e: Exception) {
                 _state.update { it.copy(loading = false, errorMsg = e.message) }
@@ -69,7 +70,7 @@ class VendedorViewModel(
         viewModelScope.launch {
             _state.update { it.copy(loading = true, errorMsg = null, successMsg = null) }
             val actualizado = item.copy(stock = nuevoStock)
-            val res = repository.update(actualizado)
+            val res = inventarioRepository.update(actualizado)
             if (res.isSuccess) {
                 _state.update { it.copy(successMsg = "Stock actualizado correctamente") }
                 cargarInventario()
@@ -81,7 +82,7 @@ class VendedorViewModel(
 
     fun eliminarProducto(item: InventarioEntity) {
         viewModelScope.launch {
-            val res = repository.delete(item)
+            val res = inventarioRepository.delete(item)
             if (res.isSuccess) {
                 _state.update { it.copy(successMsg = "Producto eliminado correctamente") }
                 cargarInventario()
@@ -91,9 +92,7 @@ class VendedorViewModel(
         }
     }
 
-
-    //Funciones para pedidos
-
+    // ----------------- PEDIDOS -----------------
     fun cargarPedidos() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, errorMsg = null) }
@@ -107,7 +106,6 @@ class VendedorViewModel(
             }
         }
     }
-
 
     fun actualizarEstadoPedido(pedido: PedidoEntity, nuevoEstado: String) {
         viewModelScope.launch {
@@ -129,10 +127,7 @@ class VendedorViewModel(
     fun eliminarPedido(pedido: PedidoEntity) {
         viewModelScope.launch {
             try {
-                // Elimina de la base de datos
                 pedidoRepository.delete(pedido)
-
-                // Actualiza el estado local
                 _state.update {
                     it.copy(
                         pedido = it.pedido.filter { p -> p.idPedido != pedido.idPedido },
@@ -145,6 +140,41 @@ class VendedorViewModel(
         }
     }
 
+    fun crearPedido(usuarioId: Long, carrito: List<ItemCarrito>) {
+        viewModelScope.launch {
+            // Crear el pedido usando el nombre correcto del parámetro
+            val nuevoPedido = PedidoEntity(
+                idusuario = usuarioId,
+                fecha = obtenerFechaActual(),
+                estado = "pendiente"
+            )
+
+            // Crear detalles del pedido
+            val detalles = carrito.map { item ->
+                DetalleEntity(
+                    idPedido = 0L, // temporal, será reemplazado por el repo
+                    idProducto = item.producto.idProducto,
+                    cantidad = item.cantidad,
+                    precioUnidad = item.producto.precio
+                )
+            }
+
+            // Insertar pedido con detalles usando el repositorio
+            val resultado = pedidoRepository.crearPedidoConDetalles(nuevoPedido, detalles)
+            resultado.onSuccess { id ->
+                _state.update { it.copy(successMsg = "Pedido creado correctamente con ID $id") }
+            }.onFailure { e ->
+                _state.update { it.copy(errorMsg = "Error al crear pedido: ${e.message}") }
+            }
+        }
+    }
+
+    // Función utilitaria para obtener la fecha actual en formato String
+    @SuppressLint("SimpleDateFormat")
+    private fun obtenerFechaActual(): String {
+        val formatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        return formatter.format(java.util.Date())
+    }
 
 
     fun clearMessages() {

@@ -1,33 +1,48 @@
 package com.example.comicstoreapp.data.repository
 
-
+import com.example.comicstoreapp.data.local.detalle.DetalleDao
+import com.example.comicstoreapp.data.local.detalle.DetalleEntity
 import com.example.comicstoreapp.data.local.pedido.PedidoDao
 import com.example.comicstoreapp.data.local.pedido.PedidoEntity
 
-class PedidoRepository(private val dao: PedidoDao) {
+
+class PedidoRepository(
+    private val pedidoDao: PedidoDao,
+    private val detalleDao: DetalleDao  // ✅ Necesario para insertar detalles
+) {
 
     suspend fun insert(pedido: PedidoEntity): Result<Long> = runCatching {
-        dao.insert(pedido)
+        pedidoDao.insert(pedido)
+    }
+
+    suspend fun crearPedidoConDetalles(
+        pedido: PedidoEntity,
+        detalles: List<DetalleEntity>
+    ): Result<Long> = runCatching {
+        // Inserta el pedido y obtiene su ID generado
+        val idPedido = pedidoDao.insert(pedido)
+
+        // Inserta cada detalle asignándole el idPedido generado
+        detalles.forEach { detalle ->
+            detalleDao.insert(detalle.copy(idPedido = idPedido))
+        }
+
+        idPedido
     }
 
     suspend fun update(pedido: PedidoEntity): Result<Unit> = runCatching {
-        dao.update(pedido)
+        pedidoDao.update(pedido)
     }
 
     suspend fun getAll(): Result<List<PedidoEntity>> = runCatching {
-        dao.getAll()
+        pedidoDao.getAll()
     }
 
-    /* suspend fun getByUsuario(idUsuario: Long): Result<List<PedidoEntity>> = runCatching {
-        dao.getByUsuario(idUsuario)
-    } */
-
     suspend fun getById(id: Long): Result<PedidoEntity?> = runCatching {
-        dao.getById(id)
+        pedidoDao.getById(id)
     }
 
     suspend fun delete(pedido: PedidoEntity): Result<Unit> = runCatching {
-        dao.delete(pedido)
+        pedidoDao.delete(pedido)
     }
-
 }

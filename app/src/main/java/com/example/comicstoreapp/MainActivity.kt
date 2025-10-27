@@ -61,11 +61,13 @@ fun AppRoot() {
     val userDao = db.userDao()
     val inventarioDao = db.inventarioDao()
     val pedidoDao = db.pedidoDao()
+    val detalleDao = db.detalleDao()
+
 
     // Repositorios
     val userRepository = UserRepository(userDao)
     val inventarioRepository = InventarioRepository(inventarioDao)
-    val pedidoRepository = PedidoRepository(pedidoDao)
+    val pedidoRepository = PedidoRepository( pedidoDao, detalleDao)
 
     // ViewModels
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(userRepository, userPrefs))
@@ -118,7 +120,7 @@ fun AppRoot() {
         // Cliente
         composable("home") { HomeScreen(navController, authViewModel, inventarioViewModel, carritoVm) }
         composable("comics") { ComicScreen(navController, authViewModel, inventarioViewModel, carritoVm )}
-        composable("carrito") { CarroDeComprasScreen( navController, authViewModel, carritoVm, onFinalizarCompra = { navController.navigate("home")}) }
+        composable("carrito") { CarroDeComprasScreen( navController, authViewModel, carritoVm, inventarioViewModel, vendedorViewModel ,onFinalizarCompra = { navController.navigate("home")}) }
 
 
         // Admin
